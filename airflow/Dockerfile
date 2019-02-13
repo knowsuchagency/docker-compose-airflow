@@ -20,9 +20,6 @@ ADD setup.py .
 RUN pip install -U pip setuptools wheel && \
     pip install -e '.[all]'
 
-#RUN mkdir /airflow && \
-#    mkdir /dags
-
 ADD dags/* /dags/
 
 ADD tasks.py .
