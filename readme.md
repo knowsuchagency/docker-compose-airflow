@@ -59,7 +59,7 @@ aws_secret_access_key = <your secret key>
 ## GCP
 `default-service-account.json`
 
-The `default-service-account.json` file at the project root will be used
+The `default-service-account.json` [service account key] at the project root will be used
 to authenticate with Google cloud by default.
 
 ---
@@ -187,3 +187,4 @@ inv deploy --prod
 [traefik]:https://traefik.io/
 [grafana]:https://grafana.com/
 [letsencrypt]:https://letsencrypt.org/
+[service account key]:https://cloud.google.com/iam/docs/creating-managing-service-account-keys
