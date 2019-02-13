@@ -125,7 +125,7 @@ python -m venv venv
 . venv/bin/activate # or the Windows equivalent
 
 # install development libraries
-pip install -r requirements-dev.txt
+pip install 'airflow/[dev]'
 
 # invoke the new-dag task
 # you will be prompted to provide parameters 
