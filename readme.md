@@ -118,15 +118,6 @@ for new dags.
 
 You can use this template to quickly write new dags by using the [task runner](tasks.py):
 ```bash
-# create a virtual environment if you haven't already
-python -m venv venv
-
-# activate it
-. venv/bin/activate # or the Windows equivalent
-
-# install development libraries
-pip install 'airflow/[dev]'
-
 # invoke the new-dag task
 # you will be prompted to provide parameters 
 # such as `dag_id` and `owner`
