@@ -1,0 +1,22 @@
+run:
+  echo: true
+
+stack_name: airflow
+
+gcp:
+  zone: us-central1-a
+  machine_type: n1-standard-2
+  managers: 3
+  workers: 0
+  kms:
+    key: secrets
+    keyring: airflow
+    location: us-central1
+
+encrypt:
+  files:
+    - default-service-account.json
+    - aws-credentials.ini
+    - airflow/.secrets.env
+    - reverse-proxy/certificate.crt
+    - reverse-proxy/key.key

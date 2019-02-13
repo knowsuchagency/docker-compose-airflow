@@ -1,0 +1,17 @@
+version: "3.7"
+
+volumes:
+  dags:
+  flow-toolz:
+
+services:
+  webserver:
+    environment:
+      AIRFLOW__WEBSERVER__AUTHENTICATE: "true"
+
+  reverse-proxy:
+    command:
+      - "--api"
+      - "--docker"
+      - "--docker.swarmMode"
+      - "--docker.watch"

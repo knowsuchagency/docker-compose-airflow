@@ -1,0 +1,10 @@
+apiVersion: 1
+
+datasources:
+  - name: influx
+    type: influxdb
+    access: proxy
+    database: cadvisor
+    url: http://influxdb:8086
+    isDefault: true
+    editable: true

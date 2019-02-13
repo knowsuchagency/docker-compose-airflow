@@ -1,0 +1,207 @@
+version: "3.7"
+
+services:
+
+  reverse-proxy:
+    build: ./reverse-proxy/
+    image: knowsuchagency/airflow-reverse-proxy
+    command: --api --docker
+    ports:
+      - "443:443"
+      - "80:80"
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: tls-certificate
+        target: certificate.crt
+      - source: tls-key
+        target: key.key
+
+
+  # time-series db used to store machine metrics
+  influxdb:
+    image: influxdb
+    volumes:
+      - influx:/var/lib/influxdb
+    expose:
+      - 8086
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  # this "service" exists only to seed the time-series db
+  init-influx:
+    depends_on:
+      - influxdb
+    image: influxdb
+    volumes:
+      - influx:/var/lib/influxdb
+    deploy:
+      replicas: 0
+    command: influx -host influxdb -execute 'CREATE DATABASE cadvisor'
+
+  # metrics front-end
+  grafana:
+    build: ./grafana/
+    image: knowsuchagency/airflow-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana:/var/lib/grafana
+    depends_on:
+      - influxdb
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  #  fetches system and container metrics from cluster nodes
+  cadvisor:
+    image: google/cadvisor
+    hostname: '{{.Node.Hostname}}'
+    command: -logtostderr -docker_only -storage_driver=influxdb -storage_driver_db=cadvisor -storage_driver_host=influxdb:8086
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      - influxdb
+    deploy:
+      mode: global
+
+  # should be eventually swapped out for hosted pg instance
+  postgres:
+    image: postgres
+    env_file:
+      ./airflow/.env
+    ports:
+      - "5432:5432"
+    expose:
+      - 5672
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  # celery backend
+  rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  # airflow front-end
+  webserver:
+    build: ./airflow
+    image: knowsuchagency/airflow-base
+    expose:
+      - 80
+    ports:
+      - "8888:80"
+    depends_on:
+      - postgres
+      - reverse-proxy
+    command: webserver
+    env_file:
+      - ./airflow/.env
+      - ./airflow/.secrets.env
+    volumes:
+      - airflow-home:/airflow
+      - dags:/dags
+      - flow-toolz:/flow_toolz
+      - aws-credentials:/root/.aws
+    secrets:
+      - service-account-json
+      - aws-credentials
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      # traefik labels are under deploy for swarm mode
+      labels:
+          - "traefik.frontend.rule=Host:your.host.com"
+          - "traefik.port=80"
+          - "traefik.enable=true"
+    labels:
+      - "traefik.frontend.rule=Host:localhost"
+    environment:
+      AIRFLOW__WEBSERVER__AUTHENTICATE: "false"
+
+  # airflow job scheduler
+  scheduler:
+    image: knowsuchagency/airflow-base
+    depends_on:
+      - rabbitmq
+      - webserver
+    env_file:
+      - ./airflow/.env
+      - ./airflow/.secrets.env
+    command: scheduler
+    volumes:
+      - airflow-home:/airflow
+      - dags:/dags
+      - flow-toolz:/flow_toolz
+      - aws-credentials:/root/.aws
+    secrets:
+      - service-account-json
+      - aws-credentials
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  # executes airflow DAGs
+  worker:
+    image: knowsuchagency/airflow-base
+    depends_on:
+      - scheduler
+    env_file:
+      - ./airflow/.env
+      - ./airflow/.secrets.env
+    command: worker
+    volumes:
+      - airflow-home:/airflow
+      - dags:/dags
+      - flow-toolz:/flow_toolz
+      - aws-credentials:/root/.aws
+    secrets:
+      - service-account-json
+      - aws-credentials
+    deploy:
+      replicas: 3
+      placement:
+        preferences:
+          - spread: node.role == worker
+
+volumes:
+  airflow-home:
+  influx:
+  grafana:
+  aws-credentials:
+  dags:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${PWD}/airflow/dags"
+      o: bind
+  flow-toolz:
+    driver: local
+    driver_opts:
+      type: none
+      device: "${PWD}/airflow/flow_toolz"
+      o: bind
+
+secrets:
+  service-account-json:
+    file: ./default-service-account.json
+  aws-credentials:
+    file: ./aws-credentials.ini
+  tls-certificate:
+    file: ./reverse-proxy/certificate.crt
+  tls-key:
+    file: ./reverse-proxy/key.key

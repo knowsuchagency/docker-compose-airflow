@@ -1,0 +1,13 @@
+run:
+  echo: true
+
+auth:
+  username:
+  password:
+  email:
+
+airflow:
+  variables:
+    code_bucket:
+    source_data_bucket:
+    platform_root_dir:
