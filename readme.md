@@ -29,6 +29,8 @@ up-and-running quickly with some good patterns.
 python3 -m venv venv
 # activate virtual environment
 . venv/bin/activate
+# install the flow_toolz package
+pip install 'airflow/[dev]'
 # generate self-signed tls cert and other filestubs
 inv bootstrap
 # bring up the server for local development
