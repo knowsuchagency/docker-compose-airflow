@@ -135,7 +135,7 @@ should be put there.
 ```
 . venv/bin/activate
 
-pip install -e './airflow[airflow,data-science]'
+pip install -e './airflow'
 
 # in python, I can now
 
