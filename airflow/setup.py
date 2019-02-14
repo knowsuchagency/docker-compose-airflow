@@ -8,7 +8,7 @@ from setuptools import find_packages, setup
 NAME = "flow_toolz"
 DESCRIPTION = "Shared airflow libs."
 URL = "https://github.com/"
-EMAIL = "your@email.como"
+EMAIL = "your@email.com"
 AUTHOR = "your name"
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = "alpha"
