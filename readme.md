@@ -174,6 +174,18 @@ inv swarm-up
 inv deploy --prod
 ```
 
+## Notes
+
+* you'll want to change the names of the images in the docker-compose file for your own deployment
+* invoke tasks that make use of google cloud i.e. `inv deploy` will expect
+a `project` element in the configuration. I have this set in my `/etc/invoke.yaml`
+
+Here's an example:
+```yaml
+gcp:
+  project: myproject
+```
+
 [invoke]:http://www.pyinvoke.org/
 [traefik]:https://traefik.io/
 [grafana]:https://grafana.com/
