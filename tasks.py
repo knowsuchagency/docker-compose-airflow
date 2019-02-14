@@ -351,7 +351,7 @@ def new_dag(
         else:
             value = input(f"{key} (default: {default_value}) -> ").strip()
 
-            args[key] = value if value else defaults[key]
+            args[key] = value or defaults[key]
 
     rendered_text = template.render(**args)
 
@@ -376,7 +376,7 @@ def connect(c):
     c.run(f"open http://{manager_ip}")
 
 
-@task(aliases=['bootstrap'])
+@task(aliases=["bootstrap"])
 def generate_auth_files(c):
     """Generate ssl keys and other file stubs for authentication purposes."""
     create_certificate(c)
