@@ -13,7 +13,7 @@ up-and-running quickly with some good patterns.
 ## Some of the features
 * [invoke] for orchestration and configuration
 * [traefik] as edge proxy
-* [grafana] as a metrics for your cluster
+* [grafana] as a metrics front-end for your cluster
 * `pip install`able `flow_toolz` package for library code
 * a recipe for creating new dags that can easily be extended `inv new-dag`
 
