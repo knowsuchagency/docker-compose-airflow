@@ -186,7 +186,7 @@ gcp:
   project: myproject
 ```
 
-You'll likely also want to change your default host bind in Docker for Mac
+You'll likely also want to change your default host bind **ip** in Docker for Mac
 
 ![Imgur](https://i.imgur.com/Vu8vgqA.png)
 
