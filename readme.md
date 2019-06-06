@@ -113,7 +113,7 @@ the running containers in real-time.
 
 ## Writing a new DAG
 
-There exists a [handy dag template](airflow/flow_toolz/templates/dag_template.py.jinja2)
+There exists a [handy dag template](airflow/flow_toolz/templates/dag_template.py)
 for new dags.
 
 You can use this template to quickly write new dags by using the [task runner](tasks.py):
